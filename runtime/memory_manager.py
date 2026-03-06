@@ -1,40 +1,54 @@
 import os
 import json
+from cryptography.fernet import Fernet
 
+class MemoryManager:
 
-BASE_MEMORY = "memory"
+    def __init__(self, entity_path):
 
+        self.entity_path = entity_path
+        self.memory_path = f"{entity_path}/memory"
 
-def memory_path(entity):
+        if not os.path.exists(self.memory_path):
+            os.makedirs(self.memory_path)
 
-    path = os.path.join(BASE_MEMORY, entity)
+        self.key_path = f"{entity_path}/memory.key"
 
-    if not os.path.exists(path):
-        os.makedirs(path)
+        if not os.path.exists(self.key_path):
+            key = Fernet.generate_key()
+            with open(self.key_path, "wb") as f:
+                f.write(key)
 
-    return os.path.join(path, "memory.json")
+        with open(self.key_path, "rb") as f:
+            self.key = f.read()
 
+        self.cipher = Fernet(self.key)
 
-def load_memory(entity):
+    def store_reflection(self, text):
 
-    path = memory_path(entity)
+        encrypted = self.cipher.encrypt(text.encode())
 
-    if not os.path.exists(path):
-        return []
+        filename = f"{self.memory_path}/reflection_{len(os.listdir(self.memory_path))}.enc"
 
-    with open(path) as f:
-        return json.load(f)
+        with open(filename, "wb") as f:
+            f.write(encrypted)
 
+    def load_recent_memory(self, limit=5):
 
-def store_memory(entity, role, content):
+        files = sorted(os.listdir(self.memory_path))[-limit:]
 
-    path = memory_path(entity)
+        memories = []
 
-    memory = []
+        for file in files:
 
-    if os.path.exists(path):
-        with open(path) as f:
-            memory = json.load(f)
+            with open(f"{self.memory_path}/{file}", "rb") as f:
+
+                encrypted = f.read()
+                decrypted = self.cipher.decrypt(encrypted).decode()
+
+                memories.append(decrypted)
+
+        return "\n".join(memories)            memory = json.load(f)
 
     memory.append({
         "role": role,
