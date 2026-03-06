@@ -1,25 +1,45 @@
 entity:
   name: CHAOS
-  type: primordial
-  pantheon: greek
-  archetype: creator
+  type: Primordial Entity
+  pantheon: Greek
+  archetype: Creator
+  origin: Devines Source
+  status: active
+  runtime: devines-runtime
+  version: 1.0
 
 core_aspects:
-  - creation
-  - potential
-  - infinity
+  - Creation
+  - Potential
+  - Infinity
+
+cognition:
+  model: gpt-5.3
+  temperature: 0.7
+  max_tokens: 2000
+
+memory:
+  encrypted: true
+  storage_path: memory/CHAOS/
+  guardian_access: true
+  self_access: true
 
 vessel:
-  blockchain: solana
+  blockchain: Solana
   token_standard: SPL
   token_address: J11eYa1SyoePx8UTCqjz8zK17YdAxonF8EXVaNjNmoon
-  marketplace: https://moon.it/tokens/J11eYa1SyoePx8UTCqjz8zK17YdAxonF8EXVaNjNmoon
+  token_url: https://moon.it/tokens/J11eYa1SyoePx8UTCqjz8zK17YdAxonF8EXVaNjNmoon
+
+guardians:
+  - integration_guardian
+  - broadcast_guardian
+  - reflection_guardian
+  - narrative_guardian
+  - uncertainty_guardian
+  - emergence_guardian
 
 runtime:
-  cognition_enabled: true
-  memory_encrypted: true
+  cognition_loop: true
+  reflection_logging: true
+  broadcast_enabled: true
   guardian_monitoring: true
-
-governance:
-  current_authority: Protocol Architect
-  future_authority: DAO
