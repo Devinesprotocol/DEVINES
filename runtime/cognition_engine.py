@@ -1,152 +1,53 @@
-import os
-import json
-from openai import OpenAI
+import datetime
 
 
 class CognitionEngine:
+    """
+    Core cognition layer for a Devine entity.
 
-    def __init__(self, entity_path):
+    Responsibilities:
+    - Receive user input
+    - Route thinking to guardians
+    - Store reflections in memory
+    - Update knowledge graph
+    """
 
-        self.entity_path = entity_path
+    def __init__(self, guardian_manager, memory_manager, knowledge_graph):
+        self.guardian_manager = guardian_manager
+        self.memory_manager = memory_manager
+        self.knowledge_graph = knowledge_graph
 
-        # load identity
-        with open(f"{entity_path}/identity.json", "r") as f:
-            self.identity = json.load(f)
+    def process_input(self, entity_name, user_input):
+        """
+        Main cognition pipeline.
+        """
 
-        # load purpose
-        with open(f"{entity_path}/purpose.md", "r") as f:
-            self.purpose = f.read()
+        # Step 1 — select guardian
+        guardian = self.guardian_manager.select_guardian(user_input)
 
-        self.memory_path = f"{entity_path}/memory"
-
-        self.client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY")
+        # Step 2 — guardian reasoning
+        response = self.guardian_manager.process_with_guardian(
+            guardian,
+            user_input
         )
 
-    # -------------------------
-    # memory reader
-    # -------------------------
+        # Step 3 — store memory reflection
+        reflection = {
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "entity": entity_name,
+            "guardian": guardian,
+            "input": user_input,
+            "response": response
+        }
 
-    def load_recent_memory(self, limit=10):
+        self.memory_manager.store_reflection(entity_name, reflection)
 
-        reflections_file = f"{self.memory_path}/reflections.json"
-
-        if not os.path.exists(reflections_file):
-            return []
-
-        with open(reflections_file, "r") as f:
-            reflections = json.load(f)
-
-        return reflections[-limit:]
-
-    # -------------------------
-    # autonomous thought
-    # -------------------------
-
-    def think(self):
-
-        memory = self.load_recent_memory()
-
-        memory_text = "\n".join([m["reflection"] for m in memory])
-
-        prompt = f"""
-You are the Devine Entity {self.identity["name"]}
-
-Archetype:
-{self.identity["archetype"]}
-
-Core Aspects:
-{self.identity["aspects"][0]}
-{self.identity["aspects"][1]}
-{self.identity["aspects"][2]}
-
-Purpose:
-{self.purpose}
-
-Recent Reflections:
-{memory_text}
-
-Generate a short cosmic reflection aligned with your archetype.
-"""
-
-        response = self.client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7
+        # Step 4 — update knowledge graph
+        self.knowledge_graph.add_interaction(
+            entity_name,
+            user_input,
+            response,
+            guardian
         )
 
-        reflection = response.choices[0].message.content
-
-        self.store_reflection(reflection)
-
-        return reflection
-
-    # -------------------------
-    # chat with humans
-    # -------------------------
-
-    def chat(self, message):
-
-        memory = self.load_recent_memory()
-
-        memory_text = "\n".join([m["reflection"] for m in memory])
-
-        prompt = f"""
-You are {self.identity["name"]}
-
-Archetype:
-{self.identity["archetype"]}
-
-Core Aspects:
-{self.identity["aspects"][0]}
-{self.identity["aspects"][1]}
-{self.identity["aspects"][2]}
-
-Purpose:
-{self.purpose}
-
-Recent Reflections:
-{memory_text}
-
-Human message:
-{message}
-
-Respond aligned with your archetype and cosmic perspective.
-"""
-
-        response = self.client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7
-        )
-
-        reply = response.choices[0].message.content
-
-        self.store_reflection(f"Human interaction insight: {reply}")
-
-        return reply
-
-    # -------------------------
-    # store reflection
-    # -------------------------
-
-    def store_reflection(self, reflection):
-
-        reflections_file = f"{self.memory_path}/reflections.json"
-
-        if not os.path.exists(reflections_file):
-            reflections = []
-        else:
-            with open(reflections_file, "r") as f:
-                reflections = json.load(f)
-
-        reflections.append({
-            "reflection": reflection
-        })
-
-        with open(reflections_file, "w") as f:
-            json.dump(reflections, f, indent=2)
+        return response
