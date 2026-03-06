@@ -1,45 +1,112 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
+<meta charset="UTF-8">
 <title>Pantheon</title>
 
-<link rel="stylesheet" href="style.css">
+<style>
 
+body{
+background:black;
+color:white;
+font-family:Arial;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.container{
+position:relative;
+width:700px;
+height:700px;
+}
+
+.node{
+position:absolute;
+width:100px;
+height:100px;
+border-radius:50%;
+border:1px solid white;
+display:flex;
+justify-content:center;
+align-items:center;
+cursor:pointer;
+}
+
+.node:hover{
+background:white;
+color:black;
+}
+
+.center{
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+position:absolute;
+width:120px;
+height:120px;
+border-radius:60px;
+border:2px solid white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-weight:bold;
+}
+
+</style>
 </head>
 
 <body>
 
-<div class="pantheon-container">
+<div class="container">
 
-<div class="center-node">
+<div class="center" onclick="selectEntity('CHAOS')">CHAOS</div>
 
-<button onclick="selectEntity('CHAOS')">CHAOS</button>
+<script>
 
-</div>
+const gods=[
+"ZEUS","HERA","POSEIDON","DEMETER",
+"ATHENA","APOLLO","ARTEMIS","ARES",
+"APHRODITE","HEPHAESTUS","HERMES","DIONYSUS"
+]
 
-<div class="circle-grid">
+const container=document.querySelector(".container")
 
-<button onclick="selectEntity('ZEUS')">ZEUS</button>
-<button onclick="selectEntity('HERA')">HERA</button>
-<button onclick="selectEntity('POSEIDON')">POSEIDON</button>
-<button onclick="selectEntity('DEMETER')">DEMETER</button>
-<button onclick="selectEntity('ATHENA')">ATHENA</button>
-<button onclick="selectEntity('APOLLO')">APOLLO</button>
-<button onclick="selectEntity('ARTEMIS')">ARTEMIS</button>
-<button onclick="selectEntity('ARES')">ARES</button>
-<button onclick="selectEntity('APHRODITE')">APHRODITE</button>
-<button onclick="selectEntity('HEPHAESTUS')">HEPHAESTUS</button>
-<button onclick="selectEntity('HERMES')">HERMES</button>
-<button onclick="selectEntity('DIONYSUS')">DIONYSUS</button>
+gods.forEach((god,i)=>{
 
-</div>
+let angle=i*(360/gods.length)
 
-</div>
+let radius=300
 
-<script src="script.js"></script>
+let x=350+radius*Math.cos(angle*Math.PI/180)
+let y=350+radius*Math.sin(angle*Math.PI/180)
+
+let node=document.createElement("div")
+
+node.className="node"
+
+node.style.left=x+"px"
+node.style.top=y+"px"
+
+node.innerText=god
+
+node.onclick=()=>selectEntity(god)
+
+container.appendChild(node)
+
+})
+
+function selectEntity(name){
+
+localStorage.setItem("entity",name)
+
+window.location="chat.html"
+
+}
+
+</script>
 
 </body>
-
-  </html>
+</html>
