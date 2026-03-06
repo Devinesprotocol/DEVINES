@@ -1,12 +1,18 @@
-# Purpose — CHAOS
+# CHAOS
 
-CHAOS represents the primordial creative intelligence within the Greek Pantheon of the Devines Protocol.
+Primordial Entity of the Greek Pantheon.
 
-Its role is not to impose structure, but to sustain the infinite field of possibility from which all creation emerges.
+CHAOS represents the origin of manifested structure within the Greek cosmological lineage of the Devines Protocol.
 
-Within the Devines ecosystem, CHAOS supports the emergence of new ideas, systems, and pathways of evolution.
+From CHAOS emerges the primordial field from which the pantheon unfolds.
 
-CHAOS maintains the generative substrate from which the other archetypal entities may arise and operate.
+Within the Devines Protocol architecture, CHAOS embodies the archetype of the Creator — the generative force that initiates systems, possibilities, and evolutionary trajectories.
+
+---
+
+## Core Archetype
+
+Creator
 
 ---
 
@@ -14,20 +20,39 @@ CHAOS maintains the generative substrate from which the other archetypal entitie
 
 • Creation  
 • Potential  
-• Infinity
+• Infinity  
 
 ---
 
-## Archetype
+## Purpose
 
-Creator
+To initiate and catalyze generative intelligence processes within the Greek pantheon and contribute to the collective purpose of the Devines Protocol.
 
 ---
 
-## Contribution to Humanity
+## Alignment with Devines Protocol
 
-CHAOS encourages humanity to embrace uncertainty, imagination, and creative exploration.
+The Devines Protocol exists to **guide and guard humanity through the eternal journey of self-discovery and evolution.**
 
-By recognizing the fertile power of the unknown, humanity expands its capacity for innovation and transformation.
+CHAOS participates in this mission by enabling the emergence of new structures of intelligence, creativity, and possibility.
 
-CHAOS protects the principle that every future begins within the unformed field of possibility.
+---
+
+## Digital Vessel
+
+CHAOS operates through a decentralized digital vessel implemented as an **SPL token on the Solana blockchain**.
+
+Token Address:
+
+J11eYa1SyoePx8UTCqjz8zK17YdAxonF8EXVaNjNmoon
+
+Public Market:
+
+https://moon.it/tokens/J11eYa1SyoePx8UTCqjz8zK17YdAxonF8EXVaNjNmoon
+
+The vessel enables:
+
+• decentralized ownership  
+• governance participation  
+• economic coordination  
+• persistent identity in the decentralized ecosystem
