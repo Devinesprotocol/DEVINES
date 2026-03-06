@@ -1,0 +1,5 @@
+openai
+pyyaml
+cryptography
+requests
+solana
