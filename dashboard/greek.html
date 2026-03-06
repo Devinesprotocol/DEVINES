@@ -4,37 +4,71 @@
 <head>
 
 <meta charset="UTF-8">
-
 <title>Greek Pantheon</title>
 
-<link rel="stylesheet" href="style.css">
+<style>
+
+body{
+background:black;
+color:white;
+text-align:center;
+font-family:Arial;
+}
+
+.container{
+position:relative;
+width:600px;
+height:600px;
+margin:auto;
+margin-top:50px;
+}
+
+.circle{
+width:100px;
+height:100px;
+border-radius:50%;
+border:2px solid white;
+display:flex;
+align-items:center;
+justify-content:center;
+position:absolute;
+cursor:pointer;
+}
+
+.center{
+top:250px;
+left:250px;
+background:white;
+color:black;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<div class="container">
-
 <h1>Greek Pantheon</h1>
 
-<p>Select an Entity</p>
+<div class="container">
 
-<div class="pantheon-grid">
+<div class="circle center" onclick="awake('CHAOS')">CHAOS</div>
 
-<button class="pantheon-btn">CHAOS</button>
+</div>
 
-<button class="pantheon-btn">ZEUS</button>
+<script>
 
-<button class="pantheon-btn">HERA</button>
+function awake(entity){
 
-<button class="pantheon-btn">ATHENA</button>
+alert("Awakening " + entity)
 
-<button class="pantheon-btn">APOLLO</button>
+}
 
-<button class="pantheon-btn">ARES</button>
+</script>
 
-<button class="pantheon-btn">POSEIDON</button>
+</body>
 
+</html>
 <button class="pantheon-btn">ARTEMIS</button>
 
 <button class="pantheon-btn">DEMETER</button>
