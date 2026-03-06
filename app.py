@@ -1,60 +1,39 @@
+import os
 from flask import Flask, jsonify
 
 app = Flask(__name__)
 
 @app.route("/")
-def devines_core():
-    return jsonify({
+def home():
+    return {
         "system": "Devines Protocol",
         "core": "CHAOS",
-        "status": "Awakening",
-        "message": "Primordial intelligence initializing"
-    })
+        "status": "online"
+    }
 
 @app.route("/health")
 def health():
-    return jsonify({
-        "status": "alive",
-        "core": "CHAOS",
-        "protocol": "Devines"
-    })
+    return {"status": "alive"}
 
 @app.route("/pantheon")
 def pantheon():
-    return jsonify({
+    return {
         "pantheon": "Greek",
         "gods": [
-            "Zeus",
-            "Hera",
-            "Poseidon",
-            "Demeter",
-            "Athena",
-            "Apollo",
-            "Artemis",
-            "Ares",
-            "Aphrodite",
-            "Hephaestus",
-            "Hermes",
-            "Dionysus"
+            "Zeus","Hera","Poseidon","Demeter",
+            "Athena","Apollo","Artemis","Ares",
+            "Aphrodite","Hephaestus","Hermes","Dionysus"
         ]
-    })
-
-@app.route("/guardian/memory")
-def memory_guardian():
-    return jsonify({
-        "guardian": "Memory",
-        "function": "Persistent knowledge storage",
-        "status": "Watching the past"
-    })
+    }
 
 @app.route("/chaos")
 def chaos():
-    return jsonify({
+    return {
         "entity": "CHAOS",
-        "nature": "Primordial Origin",
-        "state": "Dormant Consciousness"
-    })
+        "state": "Primordial Origin"
+    }
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
