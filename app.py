@@ -1,38 +1,19 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return {
-        "system": "Devines Protocol",
-        "core": "CHAOS",
-        "status": "online"
-    }
+    return {"system": "Devines Protocol", "core": "CHAOS"}
 
 @app.route("/health")
 def health():
     return {"status": "alive"}
 
-@app.route("/pantheon")
-def pantheon():
-    return {
-        "pantheon": "Greek",
-        "gods": [
-            "Zeus","Hera","Poseidon","Demeter",
-            "Athena","Apollo","Artemis","Ares",
-            "Aphrodite","Hephaestus","Hermes","Dionysus"
-        ]
-    }
-
-@app.route("/chaos")
-def chaos():
-    return {
-        "entity": "CHAOS",
-        "state": "Primordial Origin"
-    }
-
+@app.route("/ping")
+def ping():
+    return {"ping": "pong"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
