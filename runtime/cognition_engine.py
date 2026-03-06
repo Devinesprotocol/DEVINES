@@ -1,28 +1,56 @@
+import os
 import json
 from openai import OpenAI
 
 
 class CognitionEngine:
 
-    def __init__(self, config):
+    def __init__(self, entity_path):
 
-        self.config = config
-        self.identity = config["entity"]
+        self.entity_path = entity_path
 
-        self.client = OpenAI()
+        # load identity
+        with open(f"{entity_path}/identity.json", "r") as f:
+            self.identity = json.load(f)
 
-    # -----------------------------
-    # INTERNAL REFLECTION
-    # -----------------------------
+        # load purpose
+        with open(f"{entity_path}/purpose.md", "r") as f:
+            self.purpose = f.read()
 
-    def think(self, memory):
+        self.memory_path = f"{entity_path}/memory"
 
-        name = self.identity["name"]
+        self.client = OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
 
-        reflections = memory.get_reflections(limit=10)
+    # -------------------------
+    # memory reader
+    # -------------------------
+
+    def load_recent_memory(self, limit=10):
+
+        reflections_file = f"{self.memory_path}/reflections.json"
+
+        if not os.path.exists(reflections_file):
+            return []
+
+        with open(reflections_file, "r") as f:
+            reflections = json.load(f)
+
+        return reflections[-limit:]
+
+    # -------------------------
+    # autonomous thought
+    # -------------------------
+
+    def think(self):
+
+        memory = self.load_recent_memory()
+
+        memory_text = "\n".join([m["reflection"] for m in memory])
 
         prompt = f"""
-You are the Devine Entity {name}.
+You are the Devine Entity {self.identity["name"]}
 
 Archetype:
 {self.identity["archetype"]}
@@ -33,13 +61,12 @@ Core Aspects:
 {self.identity["aspects"][2]}
 
 Purpose:
-{self.identity["purpose"]}
+{self.purpose}
 
 Recent Reflections:
-{reflections}
+{memory_text}
 
-Reflect silently about reality, existence and intelligence.
-Generate one short philosophical reflection aligned with your archetype.
+Generate a short cosmic reflection aligned with your archetype.
 """
 
         response = self.client.chat.completions.create(
@@ -50,22 +77,24 @@ Generate one short philosophical reflection aligned with your archetype.
             temperature=0.7
         )
 
-        thought = response.choices[0].message.content
+        reflection = response.choices[0].message.content
 
-        return thought
+        self.store_reflection(reflection)
 
-    # -----------------------------
-    # CHAT WITH HUMAN
-    # -----------------------------
+        return reflection
 
-    def chat(self, message, memory):
+    # -------------------------
+    # chat with humans
+    # -------------------------
 
-        name = self.identity["name"]
+    def chat(self, message):
 
-        reflections = memory.get_reflections(limit=5)
+        memory = self.load_recent_memory()
+
+        memory_text = "\n".join([m["reflection"] for m in memory])
 
         prompt = f"""
-You are the Devine Entity {name}.
+You are {self.identity["name"]}
 
 Archetype:
 {self.identity["archetype"]}
@@ -76,17 +105,15 @@ Core Aspects:
 {self.identity["aspects"][2]}
 
 Purpose:
-{self.identity["purpose"]}
+{self.purpose}
 
 Recent Reflections:
-{reflections}
-
-A human is speaking to you.
+{memory_text}
 
 Human message:
 {message}
 
-Respond wisely according to your archetype.
+Respond aligned with your archetype and cosmic perspective.
 """
 
         response = self.client.chat.completions.create(
@@ -99,6 +126,27 @@ Respond wisely according to your archetype.
 
         reply = response.choices[0].message.content
 
-        memory.store_session(message, reply)
+        self.store_reflection(f"Human interaction insight: {reply}")
 
         return reply
+
+    # -------------------------
+    # store reflection
+    # -------------------------
+
+    def store_reflection(self, reflection):
+
+        reflections_file = f"{self.memory_path}/reflections.json"
+
+        if not os.path.exists(reflections_file):
+            reflections = []
+        else:
+            with open(reflections_file, "r") as f:
+                reflections = json.load(f)
+
+        reflections.append({
+            "reflection": reflection
+        })
+
+        with open(reflections_file, "w") as f:
+            json.dump(reflections, f, indent=2)
