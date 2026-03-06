@@ -1,7 +1,8 @@
-flask==3.0.3
-openai==2.26.0
-pyyaml==6.0.2
-cryptography==42.0.8
-solana==0.36.11
-uvicorn
-gunicorn==22.0.0
+flask
+openai
+pyyaml
+cryptography
+solana
+flask-cors
+requests
+gunicorn
