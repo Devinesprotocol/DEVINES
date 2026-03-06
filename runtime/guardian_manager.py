@@ -1,34 +1,53 @@
+import os
+import yaml
+
+
 class GuardianManager:
 
     def __init__(self, entity_path):
-
         self.entity_path = entity_path
+        self.guardians = {}
 
-        self.guardians = [
-            "integration_guardian",
-            "broadcast_guardian",
-            "reflection_guardian",
-            "narrative_guardian",
-            "uncertainty_guardian",
-            "emergence_guardian"
-        ]
+        self.load_guardians()
 
-    def observe(self, thought):
+    def load_guardians(self):
+        """
+        Load guardian configuration from entity config
+        """
 
-        for guardian in self.guardians:
+        config_path = os.path.join(self.entity_path, "config.yaml")
 
-            self.evaluate_guardian(guardian, thought)
+        if not os.path.exists(config_path):
+            print("No guardian config found")
+            return
 
-    def evaluate_guardian(self, guardian, thought):
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
 
-        if guardian == "uncertainty_guardian":
+        guardians = config.get("guardians", [])
 
-            if "certain" in thought.lower():
-                print("Guardian Warning: Possible overconfidence detected.")
+        for guardian in guardians:
+            name = guardian.get("name")
+            role = guardian.get("role")
 
-        if guardian == "reflection_guardian":
+            self.guardians[name] = {
+                "role": role,
+                "status": "active"
+            }
 
-            if len(thought) < 50:
-                print("Guardian Notice: Reflection depth is low.")
+    def list_guardians(self):
 
-        # Future guardian logic can expand here
+        return list(self.guardians.keys())
+
+    def get_guardian(self, name):
+
+        return self.guardians.get(name)
+
+    def guardian_status(self, name):
+
+        guardian = self.guardians.get(name)
+
+        if guardian:
+            return guardian["status"]
+
+        return "unknown"
