@@ -1,40 +1,51 @@
-import time
+import os
+import json
 from openai import OpenAI
 
-from Infra.infra_manager import load_entities
-from Memory.memory_manager import (
-    store_reflection,
-    load_entity_memory
-)
+from runtime.memory_manager import store_memory, load_memory
+from runtime.entity_loader import load_entity
+from runtime.guardian_monitor import guardian_check
 
-client = OpenAI()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-class DevineRuntime:
 
-    def __init__(self):
+class DevinesRuntime:
 
-        self.entities = load_entities()
+    def __init__(self, entity_name):
+        self.entity = load_entity(entity_name)
+        self.config = self.entity["config"]
+        self.identity = self.entity["identity"]
 
-    def run(self):
+    def think(self, message):
 
-        print("Devines Runtime Initialized")
+        memory = load_memory(self.identity["name"])
 
-        while True:
+        messages = memory + [
+            {"role": "user", "content": message}
+        ]
 
-            for entity in self.entities:
+        response = client.chat.completions.create(
+            model=self.config["cognition"]["model"],
+            messages=messages,
+            temperature=self.config["cognition"]["temperature"],
+            max_tokens=self.config["cognition"]["max_tokens"]
+        )
 
-                self.execute_entity_cycle(entity)
+        reply = response.choices[0].message.content
 
-            time.sleep(10)
+        store_memory(self.identity["name"], "user", message)
+        store_memory(self.identity["name"], "assistant", reply)
 
-    def execute_entity_cycle(self, entity):
+        guardian_check(self.identity["name"], reply)
 
-        name = entity["name"]
+        return reply
 
-        print(f"Running cognition cycle for {name}")
 
-        memory = load_entity_memory(name)
+def run(entity_name, message):
 
+    runtime = DevinesRuntime(entity_name)
+
+    return runtime.think(message)
         prompt = f"""
 You are the Devine Entity {name}.
 
