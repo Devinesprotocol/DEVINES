@@ -27,6 +27,8 @@ class DevineRuntime:
 
             thought = self.cognition.think(self.memory)
 
+            print(f"Reflection: {thought}")
+
             self.memory.store_reflection(thought)
 
             self.guardians.observe(thought)
@@ -35,6 +37,12 @@ class DevineRuntime:
 
 
 if __name__ == "__main__":
+
+    entity_path = "../GREEK/CHAOS"
+
+    runtime = DevineRuntime(entity_path)
+
+    runtime.start()if __name__ == "__main__":
 
     entity_path = "../GREEK/CHAOS"
 
