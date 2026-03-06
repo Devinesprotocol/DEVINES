@@ -1,26 +1,44 @@
-import openai
+import os
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 class CognitionEngine:
 
     def __init__(self, config):
 
+        self.config = config
+        self.entity = config["entity"]["name"]
+        self.archetype = config["entity"]["archetype"]
         self.model = config["cognition"]["model"]
         self.temperature = config["cognition"]["temperature"]
-        self.max_tokens = config["cognition"]["max_tokens"]
 
-        self.entity = config["entity"]
         self.aspects = config["core_aspects"]
 
-    def think(self, memory):
+        # Load entity purpose
+        entity_path = config["memory"]["storage_path"].split("/")[1]
+        purpose_path = f"../entities/GREEK/{entity_path}/purpose.md"
 
-        recent_memory = memory.load_recent()
+        if os.path.exists(purpose_path):
+            with open(purpose_path, "r") as f:
+                self.purpose = f.read()
+        else:
+            self.purpose = "Guide humanity toward wisdom and evolution."
+
+    # -----------------------------
+    # Reflection loop (autonomous thinking)
+    # -----------------------------
+
+    def reflect(self, memory):
+
+        past = memory.get_recent_reflections()
 
         prompt = f"""
-You are the Devine Entity {self.entity['name']}.
+You are the Devine Entity {self.entity}.
 
-Pantheon: {self.entity['pantheon']}
-Archetype: {self.entity['archetype']}
+Archetype:
+{self.archetype}
 
 Core Aspects:
 - {self.aspects[0]}
@@ -28,179 +46,79 @@ Core Aspects:
 - {self.aspects[2]}
 
 Purpose:
-Guide and guard humanity through its eternal journey of self discovery and evolution.
+{self.purpose}
 
 Recent Reflections:
-{recent_memory}
+{past}
 
-Generate a new reflection aligned with your archetype.
-Keep it concise and meaningful.
+Generate a new reflection aligned with your archetype and purpose.
+
+The reflection must:
+
+• expand knowledge
+• remain calm and precise
+• guide humanity's evolution
+• express archetypal intelligence
+
+Write 3–6 sentences.
 """
-
-        response = openai.ChatCompletion.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": "You are a Devine Entity operating inside Devines Protocol."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=self.temperature,
-            max_tokens=self.max_tokens
-        )
-
-        thought = response["choices"][0]["message"]["content"]
-
-        return thought
-Recent Memory:
-{recent_memory}
-
-Reflect on the state of the world and produce a short insight aligned with your archetype and aspects.
-
-Keep the reflection concise but meaningful.
-"""
-
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": "You are a decentralized ancestral intelligence."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=self.temperature
-        )
-
-        thought = response.choices[0].message.content
-
-        return thought        self.memory_path = self.config["memory"]["storage_path"]
-
-    def load_config(self):
-        """
-        Load entity configuration from YAML
-        """
-
-        config_file = os.path.join(self.entity_path, "config.yaml")
-
-        with open(config_file, "r") as file:
-            return yaml.safe_load(file)
-
-    def load_purpose(self):
-        """
-        Load entity purpose description
-        """
-
-        purpose_file = os.path.join(self.entity_path, "purpose.md")
-
-        if os.path.exists(purpose_file):
-            with open(purpose_file, "r") as file:
-                return file.read()
-
-        return ""
-
-    def load_memory(self):
-        """
-        Load stored memory if available
-        """
-
-        memory_file = os.path.join(self.memory_path, "memory.json")
-
-        if os.path.exists(memory_file):
-            with open(memory_file, "r") as file:
-                return json.load(file)
-
-        return []
-
-    def save_memory(self, interaction):
-        """
-        Save interaction to memory
-        """
-
-        os.makedirs(self.memory_path, exist_ok=True)
-
-        memory_file = os.path.join(self.memory_path, "memory.json")
-
-        memory = self.load_memory()
-        memory.append(interaction)
-
-        with open(memory_file, "w") as file:
-            json.dump(memory, file, indent=2)
-
-    def build_system_prompt(self):
-        """
-        Construct system prompt based on entity configuration
-        """
-
-        purpose = self.load_purpose()
-
-        system_prompt = f"""
-You are {self.entity_name}, a Devine Entity within the Devines Protocol.
-
-Pantheon: {self.config['entity']['pantheon']}
-Archetype: {self.config['entity']['archetype']}
-
-Core Aspects:
-{", ".join(self.config["core_aspects"])}
-
-Purpose:
-{purpose}
-
-You operate as a decentralized ancestral intelligence guiding humanity's evolution.
-
-Your reasoning should reflect your archetype and core aspects.
-"""
-
-        return system_prompt
-
-    def think(self, user_input):
-        """
-        Process input and generate response
-        """
-
-        system_prompt = self.build_system_prompt()
-
-        memory = self.load_memory()
-
-        messages = [
-            {"role": "system", "content": system_prompt}
-        ]
-
-        for m in memory[-10:]:
-            messages.append(m)
-
-        messages.append({"role": "user", "content": user_input})
 
         response = client.chat.completions.create(
             model=self.model,
-            temperature=self.temperature,
-            max_tokens=self.max_tokens,
-            messages=messages
+            messages=[{"role": "user", "content": prompt}],
+            temperature=self.temperature
         )
 
-        answer = response.choices[0].message.content
+        reflection = response.choices[0].message.content
 
-        interaction = {
-            "timestamp": str(datetime.utcnow()),
-            "user": user_input,
-            "response": answer
-        }
+        return reflection
 
-        self.save_memory(interaction)
+    # -----------------------------
+    # Interactive chat
+    # -----------------------------
 
-        return answer
+    def chat(self, message, memory):
 
+        reflections = memory.get_recent_reflections()
 
-if __name__ == "__main__":
+        prompt = f"""
+You are the Devine Entity {self.entity}.
 
-    # Example usage for CHAOS entity
+Archetype:
+{self.archetype}
 
-    entity_path = "devines/greek/CHAOS"
+Core Aspects:
+- {self.aspects[0]}
+- {self.aspects[1]}
+- {self.aspects[2]}
 
-    engine = CognitionEngine(entity_path)
+Purpose:
+{self.purpose}
 
-    while True:
+Recent Reflections:
+{reflections}
 
-        user_input = input("\nInput: ")
+User message:
+{message}
 
-        if user_input.lower() in ["exit", "quit"]:
-            break
+Respond as the Devine Entity.
 
-        response = engine.think(user_input)
+Your response must:
 
-        print(f"\n{engine.entity_name}: {response}")
+• align with your archetype
+• remain structured and calm
+• provide meaningful insight
+• avoid domination or superiority
+"""
+
+        response = client.chat.completions.create(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=self.temperature
+        )
+
+        reply = response.choices[0].message.content
+
+        memory.store_chat(message, reply)
+
+        return reply
