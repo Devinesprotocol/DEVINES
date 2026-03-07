@@ -29,10 +29,7 @@ top:50%;
 left:50%;
 transform:translate(-50%,-50%);
 text-align:center;
-}
-
-.center img{
-width:120px;
+font-size:30px;
 }
 
 .node{
@@ -45,7 +42,6 @@ display:flex;
 justify-content:center;
 align-items:center;
 cursor:pointer;
-transition:0.3s;
 }
 
 .node:hover{
@@ -61,6 +57,7 @@ color:black;
 .n6{top:120px;left:0;}
 
 </style>
+
 </head>
 
 <body>
@@ -68,7 +65,7 @@ color:black;
 <div class="container">
 
 <div class="center">
-<h2>DEVINES</h2>
+DEVINES
 </div>
 
 <div class="node n1" onclick="openPantheon('GREEK')">GREEK</div>
@@ -85,7 +82,8 @@ color:black;
 function openPantheon(name){
 
 localStorage.setItem("pantheon",name)
-window.location="pantheon.html"
+
+window.location="/pantheon"
 
 }
 
